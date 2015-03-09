@@ -1,0 +1,55 @@
+<?xml  version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+      xmlns:p="http://www.springframework.org/schema/p" 
+      xmlns:tx="http://www.springframework.org/schema/tx"
+      xmlns:context="http://www.springframework.org/schema/context"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       					   http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+       					   http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+    
+    
+    <context:annotation-config /> <!-- This line is important for Spring Annotations Scanning -->
+  
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="org.postgresql.Driver" />
+		<property name="url" 
+			value="jdbc:postgresql://localhost:5432/SpringHibernateJPAdb" />
+		<property name="username" value="postgres" />
+		<property name="password" value="pass@123" />
+	</bean>
+		
+		<!-- OR class="org.springframework.orm.jpa.support.SharedEntityManagerBean" -->
+<!-- EntityManagerFactory that brings together the datasource,persistence unit and JPA Vendor -->
+	<bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="jpaVendorAdapter"> 
+			 <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+		<property name="persistenceUnitName" value="SpringHibernateJPAdb" /> 
+		<property name="packagesToScan" value="com.example.entity"/>	<!-- If this is used no need of persistence.xml file -->
+															<!-- OR -->
+		<!-- <property name="persistenceXmlLocation" value="/META-INF/persistence.xml" /> --> <!-- By default it looks for META-INF -->
+		 <property name="jpaProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop> <!-- This property specifies the Dialect -->
+                <prop key="hibernate.show_sql">false</prop> <!-- This property shows sql logs in console -->
+                <prop key="hibernate.hbm2ddl.auto">update</prop> <!-- This property creates & updates tables in DB from annotated classes -->
+            </props>
+        </property>
+	</bean>
+	
+	<bean id="employeeDAO" class="com.example.dao.impl.EmployeeDaoImpl" />
+	
+	<!-- JPA Transaction Management  -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+
+    <tx:annotation-driven /> <!-- This line is important Specifying Spring Transcations is Annotations Driven -->
+    
+</beans>
+
+
+
